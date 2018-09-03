@@ -1,0 +1,15 @@
+mixin storeForm(store = {})
+
+  form( action=`/add/${store._id || ''}` method="POST" encytpe="multipart/form-data" class="card")
+    label(for="name") Name
+    input(type="text" name="name" value=store.name)
+    label(for="description") Description
+    textarea(name="description") #{store.description}
+    - const choices = ['Wi-fi', 'Dog friendly', 'Open sunday', 'Bar']
+    - const tags = store.tags || []
+    ul.tags
+      each choice in choices
+        .tag.tag__choice
+          input(type="checkbox" name="tags" value=choice id=choice checked=(tags.includes(choice)))
+          label(for=choice) #{choice}
+    input(type="submit" value="Save" class="button")
