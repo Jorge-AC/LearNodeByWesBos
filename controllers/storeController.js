@@ -1,5 +1,21 @@
 const mongoose = require('mongoose');
 const Store = mongoose.model('Store');
+const multer = require('multer');
+const uuid = require('uuid');
+const jimp = require('jimp');
+
+const multerOptions = { 
+  storage: multer.memoryStorage(),
+  fileFilter(req, file, cb) {
+    const isPhoto = file.mimetype.startsWith('image/');
+
+    if(isPhoto) {
+      cb(null, true)
+    } else {
+      cb({message: 'That file type isn\'t allowed'}, false)
+    };
+  }
+};
 
 exports.homepage = (req, res) => {
 	res.render('index', {title: 'Home Page'})
@@ -41,3 +57,20 @@ exports.updateStore = async(req, res) => {
   req.flash('success', `Store ${store.name} successfully updated. <a href="/stores/${store.slug}">View Store</a>`);
   res.redirect(`/stores/${store._id}/edit`);
 };
+
+exports.upload = multer(multerOptions).single('photo');
+
+exports.resize = async (req, res, next) => {
+  if(!req.file) {
+    return next();
+  };
+
+  const extension = req.file.mimetype.split('/')[1];
+  req.body.photo = `${uuid.v4()}.${extension}`;
+
+  const photo = await jimp.read(req.file.buffer);
+  await photo.resize(500, jimp.AUTO);
+  await photo.write(`./public/uploads/${req.body.photo}`);
+
+  next();
+}
