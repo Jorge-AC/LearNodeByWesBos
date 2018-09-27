@@ -2,7 +2,7 @@ mixin storeCard(store={})
   
   .store
     .store__hero
-      img( src=`uploads/${ store.photo || 'store.png' }`)
+      img( src=`/uploads/${ store.photo || 'store.png' }`)
       .store__actions
         .store__action.store__action--edit
           a(href=`/stores/${ store._id}/edit`)
