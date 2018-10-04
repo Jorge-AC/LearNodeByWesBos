@@ -26,9 +26,10 @@ exports.addStore = (req, res) => {
 };
 
 exports.createStore = async (req, res) => {
+  req.body.author = req.user._id;
   const store = await new Store(req.body).save();
   req.flash('success', 'Store successfully created');
-  res.redirect(`/stores/${store.slug}`);
+  res.redirect(`/store/${store.slug}`);
 };
 
 exports.getStores = async (req, res) => {
@@ -36,8 +37,15 @@ exports.getStores = async (req, res) => {
   res.render('stores', { title: 'Stores', stores });
 };
 
+const checkStoreAuthor = (store, user) => {
+  if (!store.author.equals(user._id)) {
+    throw Error('You must own a store in order to edit it');
+  }
+};
+
 exports.editStore = async (req, res) => {
   const store = await Store.findOne({ _id: req.params.id });
+  checkStoreAuthor(store, req.user);
   res.render('editStore', { title: `Edit ${store.name}`, store });
 };
 
@@ -55,7 +63,10 @@ exports.updateStore = async (req, res) => {
     }
   ).exec();
 
-  req.flash('success', `Store ${store.name} successfully updated. <a href="/store/${store.slug}">View Store</a>`);
+  req.flash(
+    'success',
+    `Store ${store.name} successfully updated. <a href="/store/${store.slug}">View Store</a>`
+  );
   res.redirect(`/stores/${store._id}/edit`);
 };
 

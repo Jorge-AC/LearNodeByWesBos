@@ -4,9 +4,10 @@ mixin storeCard(store={})
     .store__hero
       img( src=`/uploads/${ store.photo || 'store.png' }`)
       .store__actions
-        .store__action.store__action--edit
-          a(href=`/stores/${ store._id}/edit`)
-            != h.icon('pencil')
+        if(user && store.author.equals(user._id))
+          .store__action.store__action--edit
+            a(href=`/stores/${ store._id}/edit`)
+              != h.icon('pencil')
       .store__name #{store.name}
       h2.title
         a(href=`/store/${store.slug}`) #{store.name}
