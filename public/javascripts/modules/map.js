@@ -54,8 +54,10 @@ function makeMap(mapDiv) {
   if (!mapDiv) return;
 
   const map = new google.maps.Map(mapDiv, mapOptions);
-  loadPlaces(map);
   const autocomplete = new google.maps.places.Autocomplete($('[name=geolocate]'));
+
+  loadPlaces(map);
+
   autocomplete.addListener('place_changed', function(e) {
     const place = autocomplete.getPlace();
 

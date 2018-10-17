@@ -4,6 +4,13 @@ mixin storeCard(store={})
     .store__hero
       img( src=`/uploads/${ store.photo || 'store.png' }`)
       .store__actions
+        if user 
+          - const hearted = user.hearts.map( heart => heart.toString() );
+          - const className = hearted.includes(store._id.toString()) ? 'heart__button--hearted' : '';
+          .store__action.store__action--heart
+            form.heart(action=`/api/v1/stores/${store._id}/heart` method="POST")
+              button.heart__button(type="submit" name="heart" class=`${className}`)
+                != h.icon('heart')
         if(user && store.author.equals(user._id))
           .store__action.store__action--edit
             a(href=`/stores/${ store._id}/edit`)
