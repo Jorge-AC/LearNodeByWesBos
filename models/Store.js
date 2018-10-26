@@ -74,6 +74,9 @@ storeSchema.pre('save', async function(next) {
   next();
 });
 
+storeSchema.pre('find', autopopulate);
+storeSchema.pre('findOne', autopopulate);
+
 storeSchema.statics.getTagsList = function() {
   return this.aggregate([
     { $unwind: '$tags' },
@@ -81,6 +84,49 @@ storeSchema.statics.getTagsList = function() {
     { $sort: { count: -1 } }
   ]);
 };
+
+storeSchema.statics.getTopStores = function() {
+  return this.aggregate([
+    {
+      $lookup: {
+        from: 'reviews',
+        localField: '_id',
+        foreignField: 'store',
+        as: 'reviews'
+      }
+    },
+    {
+      $match: {
+        'reviews.1': { $exists: true }
+      }
+    },
+    {
+      $project: {
+        averageRatings: {
+          $avg: '$reviews.rating'
+        },
+        slug: '$$ROOT.slug',
+        name: '$$ROOT.name',
+        reviews: '$$ROOT.reviews',
+        photo: '$$ROOT.photo'
+      }
+    },
+    {
+      $sort: {
+        averageRatings: -1
+      }
+    },
+    {
+      $limit: 10
+    }
+  ]);
+};
+
+function autopopulate(next) {
+  this.populate('reviews');
+
+  next();
+}
 
 storeSchema.virtual('reviews', {
   ref: 'Review',

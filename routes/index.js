@@ -57,5 +57,6 @@ router.get('/api/v1/stores/near', catchErrors(storeController.mapStores));
 router.post('/api/v1/stores/:id/heart', catchErrors(storeController.heartStore));
 router.get('/hearts', authController.isLoggedIn, catchErrors(storeController.heartedStores));
 router.post('/reviews/:id', authController.isLoggedIn, catchErrors(reviewController.addReview));
+router.get('/top', catchErrors(storeController.getTopStores));
 
 module.exports = router;
