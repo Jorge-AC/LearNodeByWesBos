@@ -1,0 +1,11 @@
+mixin pagination(page, pages, count)
+  .inner
+    .pagination
+      .pagination__prev 
+        if page > 1
+          a(href=`/stores/page/${page - 1}`) Page #{page - 1}
+      .pagination__text 
+        p Page #{page} of #{pages}. Showing 4 of #{count} stores
+      .pagination__next 
+        if (page < pages)
+          a(href=`/stores/page/${page + 1}`) Page #{page + 1}

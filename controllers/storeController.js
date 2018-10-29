@@ -34,8 +34,27 @@ exports.createStore = async (req, res) => {
 };
 
 exports.getStores = async (req, res) => {
-  const stores = await Store.find();
-  res.render('stores', { title: 'Stores', stores });
+  const page = parseFloat(req.params.page) || 1;
+  const limit = 4;
+  const skip = page * limit - limit;
+
+  const countPromise = Store.count();
+
+  const storesPromise = Store.find()
+    .limit(limit)
+    .skip(skip)
+    .sort({ created: 'desc' });
+
+  const [stores, count] = await Promise.all([storesPromise, countPromise]);
+  const pages = Math.ceil(count / limit);
+
+  if (!stores.length && skip) {
+    req.flash('info', `Hey the page you requested does not exist. So I put you on page ${pages}`);
+    res.redirect(`/stores/page/${pages}`);
+    return;
+  }
+
+  res.render('stores', { title: 'Stores', stores, count, pages, page });
 };
 
 const checkStoreAuthor = (store, user) => {
